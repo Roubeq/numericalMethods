@@ -1,0 +1,156 @@
+# Compiled object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.bin
+
+# Qt specific
+Makefile
+*.pro.user
+*.pro.user.*
+*.qrc.d
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+*.moc
+*.qmake.stash
+*.qm
+
+# Build directories
+build-*/
+build/
+Debug/
+Release/
+x64/
+x86/
+*.build/
+*.xcodeproj/
+*.xcworkspace/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+CTestTestfile.cmake
+
+# QMake
+Makefile
+*.make
+*.prl
+
+# Visual Studio
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+*.suo
+*.opensdf
+*.sdf
+ipch/
+*.aps
+*.ncb
+*.opt
+*.plg
+
+# Eclipse
+.project
+.cproject
+.settings/
+
+# CodeBlocks
+*.cbp
+*.workspace
+
+# CLion
+.idea/
+cmake-build-*/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# MacOS
+.DS_Store
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Backup files
+*~
+*.bak
+*.backup
+*.tmp
+*.swp
+*.swo
+
+# Logs
+*.log
+*.tlog
+
+# Dependency files
+*.d
+
+# Precompiled headers
+*.gch
+
+# Qt Creator
+*.autosave
+
+# Package files
+*.deb
+*.rpm
+*.tar.gz
+*.zip
+
+# Documentation
+doc/
+html/
+latex/
+
+# Unit tests
+test_results/
+
+# Coverage reports
+coverage/
+*.gcda
+*.gcno
+*.gcov
+
+# Profiling data
+*.profraw
+*.profdata
+
+# Database files
+*.db
+*.sqlite
