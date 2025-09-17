@@ -19,17 +19,19 @@ public:
     ~MainWindow();
 
 private:
-    QCustomPlot *customPlot;
+    QCustomPlot *plotWidget;
+    QDoubleSpinBox *kSpinBox;
+    QSpinBox *nSpinBox;
+    QTextEdit *outputText;
 
-    QLineEdit *kInput;
-
-    QSpinBox *nMaxInput;
     QTextEdit *errorText;
 
     QVector<double> x0Values;
     QVector<QVector<double>> partialSums;
     QVector<double> errorsAtX0;
     QVector<double> XnValues;
+
+    double x0Fix = 0.502655;
 
     double epsilon = 0.1;
 

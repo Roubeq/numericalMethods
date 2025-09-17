@@ -1,136 +1,157 @@
 #include "mainwindow.h"
+#include <QGridLayout>
+#include <QDoubleSpinBox>
+#include <QPushButton>
+#include <QDebug>
+#include <cmath>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    setWindowTitle("Это график");
-    resize(1400, 900);
+    setWindowTitle("Lab 0");
+    setMinimumSize(1200, 800);
 
-    QWidget *newWidget = new QWidget(this);
-    setCentralWidget(newWidget);
-    QVBoxLayout *mainBoxLayout = new QVBoxLayout(newWidget);
+    QWidget *central = new QWidget(this);
+    setCentralWidget(central);
+    QGridLayout *gridLayout = new QGridLayout(central);
 
-    QGroupBox *parameters = new QGroupBox("Параметры");
-    parameters->setFixedHeight(80);
-    mainBoxLayout->addWidget(parameters);
-    QHBoxLayout *controlLayout = new QHBoxLayout();
+    QWidget *controlPanel = new QWidget();
+    controlPanel->setFixedWidth(300);
+    QVBoxLayout *panelLayout = new QVBoxLayout(controlPanel);
 
-    controlLayout->addWidget(new QLabel("k: "));
-    kInput = new QLineEdit("1.0");
-    controlLayout->addWidget(kInput);
+    kSpinBox = new QDoubleSpinBox();
+    kSpinBox->setRange(1.0, 10.0);
+    kSpinBox->setValue(1.0);
+    kSpinBox->setSingleStep(1.0);
 
-    controlLayout->addWidget(new QLabel("N: "));
-    nMaxInput = new QSpinBox();
-    nMaxInput->setValue(1);
-    nMaxInput->setRange(1,10);
-    controlLayout->addWidget(nMaxInput);
+    nSpinBox = new QSpinBox();
+    nSpinBox->setRange(0, 10);
+    nSpinBox->setValue(0);
 
-    QPushButton *calculateButton = new QPushButton("Вычислить");
-    controlLayout->addWidget(calculateButton);
+    outputText = new QTextEdit();
+    outputText->setReadOnly(true);
+    outputText->setFixedHeight(400);
 
-    parameters->setLayout(controlLayout);
-    mainBoxLayout->addWidget(parameters);
+    QPushButton *plotButton = new QPushButton("Построить график");
+    plotButton->setFixedHeight(40);
 
-    customPlot = new QCustomPlot();
-    mainBoxLayout->addWidget(customPlot);
+    panelLayout->addWidget(new QLabel("Коэффициент k:"));
+    panelLayout->addWidget(kSpinBox);
+    panelLayout->addWidget(new QLabel("Кол-во членов ряда n:"));
+    panelLayout->addWidget(nSpinBox);
+    panelLayout->addSpacing(20);
+    panelLayout->addWidget(plotButton);
+    panelLayout->addWidget(new QLabel("Результаты:"));
+    panelLayout->addWidget(outputText);
+    panelLayout->addStretch();
 
-    customPlot->xAxis->setLabel("x");
-    customPlot->yAxis->setLabel("y");
-    customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-    customPlot->legend->setVisible(true);
+    plotWidget = new QCustomPlot();
+    plotWidget->xAxis->setLabel("Ось X");
+    plotWidget->yAxis->setLabel("Ось Y");
+    plotWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+    plotWidget->legend->setVisible(true);
 
-    connect(calculateButton, &QPushButton::clicked, this, &MainWindow::calculate);
+    gridLayout->addWidget(controlPanel, 0, 0, 1, 1);
+    gridLayout->addWidget(plotWidget, 0, 1, 1, 3);
+    gridLayout->setColumnStretch(1, 1);
+
+    connect(plotButton, &QPushButton::clicked, this, &MainWindow::calculate);
 }
 
 MainWindow::~MainWindow()
 {
-    //delete customPlot;
 }
 
-double MainWindow::factorial(int number) {
-    if (number < 0) {
+double MainWindow::factorial(int n)
+{
+    if (n < 0) {
+        qCritical() << "Factorial error: negative input";
         exit(1);
     }
-    double result = 1;
-    for (int n = 1; n <= number; n++) {
-        result *= n;
+    double fact = 1.0;
+    while (n > 1) {
+        fact *= n--;
     }
-    return result;
+    return fact;
 }
 
-double MainWindow::taylor(double x, double k, int nMax) {
-    double result = 0.0;
-
-    for (int n = 0; n < nMax; n++) {
-        int exponent = 2 * n + 1;
-        double term = std::pow(-1, n) * std::pow(k * x, exponent) / factorial(exponent);
-        result += term;
+double MainWindow::taylor(double x, double k, int nMax)
+{
+    double sum = 0.0;
+    for (int i = 0; i < nMax; ++i) {
+        int power = 2 * i + 1;
+        double term = std::pow(-1.0, i) * std::pow(k * x, power) / factorial(power);
+        sum += term;
     }
-
-    return result;
+    return sum;
 }
 
-void MainWindow::calculate() {
-    customPlot->clearGraphs();
-    double k = kInput->text().toDouble();
-    int nMax = nMaxInput->value();
+void MainWindow::calculate()
+{
+    outputText->clear();
+    plotWidget->clearGraphs();
 
-    QVector<double> xValues;
-    QVector<double> exactValues;
-    int points = 1000;
-    for (int i = 0; i <= points; i++) {
-        double x = 2 * M_PI * i / points;
-        xValues.append(x);
-        exactValues.append(std::sin(k * x));
+    double k = kSpinBox->value();
+    int nMax = nSpinBox->value();
+
+    const int numPoints = 1000;
+    QVector<double> xData(numPoints + 1), exactData(numPoints + 1);
+    for (int i = 0; i <= numPoints; ++i) {
+        xData[i] = 2 * M_PI * i / numPoints;
+        exactData[i] = std::sin(k * xData[i]);
     }
 
-    QCPGraph *exactGraph = customPlot->addGraph();
-    exactGraph->setData(xValues, exactValues);
-    exactGraph->setPen(QPen(Qt::red, 2));
-    exactGraph->setName("Точная функция: sin(kx)");
+    QCPGraph *exactPlot = plotWidget->addGraph();
+    exactPlot->setData(xData, exactData);
+    exactPlot->setPen(QPen(Qt::blue, 2));
+    exactPlot->setName("sin(kx)");
 
-    int graphIndex = 1;
+    for (int n = 1; n <= nMax; ++n) {
+        QVector<double> validPointsX, validPointsY, invalidPointsX, invalidPointsY;
 
-    for (int n = 1; n <= nMax; n++) {
-        QVector<double> validX;
-        QVector<double> validY;
-
-        QVector<double> invalidX;
-        QVector<double> invalidY;
-
-        for (int i = 0; i < xValues.size(); i++) {
-            double x = xValues[i];
-            double exact = exactValues[i];
-            double approx = taylor(x, k, n);
-            double error = std::abs(exact - approx);
+        for (int i = 0; i < xData.size(); ++i) {
+            double x = xData[i];
+            double exact = exactData[i];
+            double taylorRes = taylor(x, k, n);
+            double error = std::abs(exact - taylorRes);
 
             if (error <= epsilon) {
-                validX.append(x);
-                validY.append(approx);
+                validPointsX.append(x);
+                validPointsY.append(taylorRes);
+                if (x <= 0.502655 && x >= 0.502654) {
+                    outputText->append(QString("n=%1, x=%2, ошибка=%3")
+                                           .arg(n)
+                                           .arg(x, 0, 'f', 6)
+                                           .arg(error, 0, 'f', 10));
+                }
             } else {
-                invalidX.append(x);
-                invalidY.append(approx);
+                invalidPointsX.append(x);
+                invalidPointsY.append(taylorRes);
             }
         }
 
-        if (!validX.isEmpty()) {
-            QCPGraph *validGraph = customPlot->addGraph();
-            validGraph->setData(validX, validY);
-            QColor color = QColor::fromHsv((n * 50) % 360, 200, 200);
-            validGraph->setPen(QPen(color, 2));
-            validGraph->setName(QString("S%1(x) (ошибка≤%2)").arg(n).arg(epsilon));
+        if (!validPointsX.isEmpty()) {
+            outputText->append(QString("Интервал для n=%1: [0, %2]")
+                            .arg(n)
+                            .arg(validPointsX.last(), 0, 'f', 3));
+
+            QCPGraph *validPlot = plotWidget->addGraph();
+            validPlot->setData(validPointsX, validPointsY);
+            QColor color = QColor::fromHsv((n * 70) % 360, 180, 200);
+            validPlot->setPen(QPen(color, 2));
+            validPlot->setName(QString("Taylor n=%1 (err≤%2)").arg(n).arg(epsilon));
         }
 
-        if (!invalidX.isEmpty()) {
-            QCPGraph *invalidGraph = customPlot->addGraph();
-            invalidGraph->setData(invalidX, invalidY);
-            QColor color = QColor::fromHsv((n * 50) % 360, 200, 200, 150);
-            invalidGraph->setPen(QPen(color, 1, Qt::DotLine));
-            invalidGraph->removeFromLegend();
+        if (!invalidPointsX.isEmpty()) {
+            QCPGraph *invalidPlot = plotWidget->addGraph();
+            invalidPlot->setData(invalidPointsX, invalidPointsY);
+            QColor color = QColor::fromHsv((n * 70) % 360, 180, 200, 100);
+            invalidPlot->setPen(QPen(color, 1, Qt::DashLine));
+            invalidPlot->removeFromLegend();
         }
     }
 
-    customPlot->xAxis->setRange(0, 2 * M_PI);
-    customPlot->yAxis->setRange(-1.5, 1.5);
-    customPlot->replot();
+    plotWidget->xAxis->setRange(0, 2 * M_PI);
+    plotWidget->yAxis->setRange(-1.8, 1.8);
+    plotWidget->replot();
 }
