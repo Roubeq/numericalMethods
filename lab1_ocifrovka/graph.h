@@ -12,6 +12,7 @@ public:
     Graph(QWidget *parent = nullptr);
 
     QCustomPlot *plot;
+    QCustomPlot *plot2;
     int numberOfDots = 115;
     double stepMillimeters = 0.2;
 
@@ -21,6 +22,14 @@ private:
     void loadParametersX();
 
     void loadParametersYFromFile();
+
+    double lagranj(double x);
+    double newton(double x);
+
+    void plotLagranj();
+    void plotNewton();
+
+    void calculateError();
 
 };
 #endif // GRAPH_H
