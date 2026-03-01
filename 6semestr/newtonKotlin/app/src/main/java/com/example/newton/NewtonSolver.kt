@@ -19,7 +19,7 @@ class NewtonSolver {
         e1 = e1_
         e2 = e2_
     }
-
+ 
     fun setMaxIterations(maxIter_: Int) {
         maxIter = maxIter_
     }

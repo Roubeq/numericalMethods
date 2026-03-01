@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->addWidget(solutionTextEdit);
 
     setCentralWidget(central);
-    fileName = "C:/Users/Artem/Desktop/NumericalMethods/numericalMethods/6semestr/untitled/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/debug/input.txt";
+    fileName = "C:/Users/Artem/Desktop/NumericalMethods/numericalMethods/6semestr/newtonCpp/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/debug/input.txt";
 
     connect(solveButton, &QPushButton::clicked, this, &MainWindow::solve);
 }
